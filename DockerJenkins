@@ -2,6 +2,13 @@ pipeline
 {
     agent any
 
+    environment
+	{
+	    imagename = "awsrj/maven_project"
+		registryCredential = 'dockerhub_id'
+		dockerImage = ''
+	}
+	
     stages
     {
         stage ('Pull artifacts from github repository')
@@ -60,7 +67,32 @@ pipeline
 		{
 		    steps
 			{
-			    sh 'docker build -t maven_project:v1 .'
+			    script
+				{
+			        dockerImage = docker.build imagename
+				}
+			}
+		}
+		
+		stage ('Deploy docker image')
+		{
+		    steps
+			{
+			    script
+				{
+				    docker.withRegistry('', registryCredential)
+					dockerImage.push ("$BUILD_NUMBER")
+					dockerImage.push ('latest')
+				}
+			}
+		}
+		
+		stage ('Remove unused docker image')
+		{
+		    steps
+			{
+			    sh "docker rmi $imagename:$BUILD_NUMBER"
+				sh "docker rmi $imagename.latest"
 			}
 		}
 	}
