@@ -94,7 +94,7 @@ pipeline
 			{
 			    //sh "docker rmi $imagename:$BUILD_NUMBER"
 				//sh "docker rmi $imagename:latest"
-				sh "docker images -a -f -q | xargs --no-run-if-empty docker rmi"
+				sh "docker images -a -q | xargs --no-run-if-empty docker rmi -f"
 			}
 		}
 	}
